@@ -1,0 +1,16 @@
+{
+  "name": "web-lab3",
+  "version": "1.0.0",
+  "description": "CLI програма для управління замовленнями",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Sviatoslav Didukh",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^12.1.0"
+  }
+}
