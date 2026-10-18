@@ -1,0 +1,94 @@
+[
+  {
+    "orderId": 1001,
+    "customer": {
+      "firstName": "Sviatoslav",
+      "lastName": "Didukh",
+      "phone": "+380501234567"
+    },
+    "items": [
+      {
+        "productName": "STM32 Black Pill Microcontroller",
+        "quantity": 2,
+        "price": 150.50
+      },
+      {
+        "productName": "Radiomaster TX16S Transmitter",
+        "quantity": 1,
+        "price": 8500.00
+      },
+      {
+        "productName": "TBS Crossfire Nano RX",
+        "quantity": 3,
+        "price": 1200.00
+      }
+    ],
+    "deliveryAddress": {
+      "city": "Lviv",
+      "street": "Universytetska St, 1",
+      "postalCode": "79000"
+    },
+    "paymentMethod": "Card",
+    "status": "Delivered",
+    "isPaid": true,
+    "discountCode": null
+  },
+  {
+    "orderId": 1002,
+    "customer": {
+      "firstName": "Ivan",
+      "lastName": "Petrenko",
+      "phone": null
+    },
+    "items": [
+      {
+        "productName": "Arduino UNO Rev3",
+        "quantity": 5,
+        "price": 450.00
+      },
+      {
+        "productName": "Breadboard 830 Point",
+        "quantity": 2,
+        "price": 85.00
+      }
+    ],
+    "deliveryAddress": {
+      "city": "Kyiv",
+      "street": "Khreshchatyk St, 22",
+      "postalCode": "01001"
+    },
+    "paymentMethod": "Cash",
+    "status": "Processing",
+    "isPaid": false,
+    "discountCode": "STUDENT10"
+  },
+  {
+    "orderId": 1003,
+    "customer": {
+      "firstName": "Olena",
+      "lastName": "Kovalenko",
+      "phone": "+380679876543"
+    },
+    "items": [
+      {
+        "productName": "PETG Filament 1kg Black",
+        "quantity": 4,
+        "price": 620.00
+      },
+      {
+        "productName": "Hardened Steel Nozzle 0.4mm",
+        "quantity": 1,
+        "price": 480.00
+      }
+    ],
+    "deliveryAddress": {
+      "city": "Lviv",
+      "street": "Shevchenka St, 15",
+      "postalCode": "79007"
+    },
+    "paymentMethod": "Card",
+    "status": "Shipped",
+    "isPaid": true,
+    "discountCode": "MAKER5"
+  }
+]
