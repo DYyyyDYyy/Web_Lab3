@@ -149,4 +149,104 @@ program
     }
   });
 
+program
+  .command('items')
+  .description('Показати позиції замовлення із сумою за кожну та можливістю сортування')
+  .argument('<id>', 'Унікальний числовий ідентифікатор замовлення (orderId)')
+  .option('-s, --sort <criteria>', 'Критерій сортування: sum, price, quantity, name', 'sum')
+  .option('-d, --desc', 'Сортувати у порядку спадання', false)
+  .action(async (id, cmdOptions) => {
+    const orders = await loadData();
+    const order = findOrderById(orders, id);
+
+    const validCriteria = ['sum', 'price', 'quantity', 'name'];
+    if (!validCriteria.includes(cmdOptions.sort)) {
+      console.error(
+        `Помилка: невідомий критерій сортування '${cmdOptions.sort}'. Доступні варіанти: ${validCriteria.join(', ')}.`
+      );
+      process.exit(1);
+    }
+
+    const enrichedItems = order.items.map((item) => ({
+      ...item,
+      lineTotal: Number((item.quantity * item.price).toFixed(2))
+    }));
+
+    enrichedItems.sort((a, b) => {
+      let comparison = 0;
+      if (cmdOptions.sort === 'sum') {
+        comparison = a.lineTotal - b.lineTotal;
+      } else if (cmdOptions.sort === 'price') {
+        comparison = a.price - b.price;
+      } else if (cmdOptions.sort === 'quantity') {
+        comparison = a.quantity - b.quantity;
+      } else if (cmdOptions.sort === 'name') {
+        comparison = a.productName.localeCompare(b.productName);
+      }
+      return cmdOptions.desc ? -comparison : comparison;
+    });
+
+    console.log(`Позиції замовлення №${order.orderId} (сортування: ${cmdOptions.sort}, спадання: ${cmdOptions.desc ? 'так' : 'ні'}):`);
+    for (const [index, item] of enrichedItems.entries()) {
+      console.log(
+        `${index + 1}. ${item.productName} | Кількість: ${item.quantity} шт. | Ціна: ${item.price.toFixed(2)} грн | Сума: ${item.lineTotal.toFixed(2)} грн`
+      );
+    }
+  });
+
+program
+  .command('total')
+  .description('Обчислити загальну суму замовлення')
+  .argument('<id>', 'Унікальний числовий ідентифікатор замовлення (orderId)')
+  .option('--apply-discount', 'Врахувати промокод на знижку, якщо він вказаний у замовленні', false)
+  .action(async (id, cmdOptions) => {
+    const orders = await loadData();
+    const order = findOrderById(orders, id);
+
+    const rawTotal = order.items.reduce((acc, item) => acc + item.quantity * item.price, 0);
+    const totalPositions = order.items.reduce((acc, item) => acc + item.quantity, 0);
+
+    console.log(`Замовлення №${order.orderId}`);
+    console.log(`Кількість найменувань: ${order.items.length} (всього одиниць товару: ${totalPositions})`);
+    console.log(`Базова сума замовлення: ${rawTotal.toFixed(2)} грн`);
+
+    if (cmdOptions.applyDiscount) {
+      if (order.discountCode) {
+        const match = order.discountCode.match(/(\d+)$/);
+        const discountPercent = match ? Number(match[1]) : 0;
+        const discountAmount = (rawTotal * discountPercent) / 100;
+        const finalTotal = rawTotal - discountAmount;
+        console.log(`Промокод: ${order.discountCode} (-${discountPercent}%)`);
+        console.log(`Сума зі знижкою: ${finalTotal.toFixed(2)} грн`);
+      } else {
+        console.log('Промокод: відсутній (null), знижка не застосовується.');
+        console.log(`Підсумкова сума до сплати: ${rawTotal.toFixed(2)} грн`);
+      }
+    }
+  });
+
+program
+  .command('summary')
+  .description('Показати зведення про доставку й оплату для обраного замовлення')
+  .argument('<id>', 'Унікальний числовий ідентифікатор замовлення (orderId)')
+  .action(async (id) => {
+    const orders = await loadData();
+    const order = findOrderById(orders, id);
+
+    const fullName = `${order.customer.firstName} ${order.customer.lastName}`;
+    const phone = order.customer.phone ?? 'Не вказано (null)';
+    const address = `${order.deliveryAddress.postalCode}, м. ${order.deliveryAddress.city}, ${order.deliveryAddress.street}`;
+    const paymentState = order.isPaid ? 'Оплачено (true)' : 'Очікує оплати (false)';
+    const promo = order.discountCode ?? 'Не застосовувався (null)';
+
+    console.log(`=== Зведення замовлення №${order.orderId} ===`);
+    console.log(`Отримувач:        ${fullName}`);
+    console.log(`Телефон:          ${phone}`);
+    console.log(`Адреса доставки:  ${address}`);
+    console.log(`Спосіб оплати:    ${order.paymentMethod}`);
+    console.log(`Стан оплати:      ${paymentState}`);
+    console.log(`Промокод:         ${promo}`);
+    console.log(`Поточний статус:  ${order.status}`);
+  });
+
 await program.parseAsync(process.argv);
